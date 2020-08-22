@@ -14,6 +14,8 @@ export class FormComponent implements OnInit {
   y mapeado a un objeto este objeto es un atributo*/ 
   //creamos el atributo cliente+
  //inyectamos el create
+ /*debemos tener un atributo un arreglo que contenga mensajes de errores
+ del tipo string*/ 
   constructor(public  clienteService: ClienteService, 
     public router: Router,public activatedRoute:ActivatedRoute ) { }
 
@@ -21,6 +23,7 @@ export class FormComponent implements OnInit {
   
   public titulo:string = "Crear cliente"
 
+  public  errores:string[];
   
   ngOnInit(): void {
     this.cargarCliente();
@@ -43,14 +46,21 @@ export class FormComponent implements OnInit {
 
   }
   
-  
+  /*como segundo parámetro podemos suscribir a un boservador y manejar cuando las cosas salen mal
+    error que seria  el atributo de este objeto error que contiene el json y en el json
+    pasamos los errores dentro del parametro errors */
   public create(): void{
     
     this.clienteService.create(this.cliente).
     subscribe( cliente => { 
       this.router.navigate(['/clientes'])
       swal.fire('Nuevo cliente' , `Ha sido creado con exito  ${cliente.nombre} `,'success')
-      }    
+      },
+      err =>{
+        this.errores = err.error.errors as string[]
+        console.error('Código del error desde back end:'+ err.status);
+        console.error(err.error.errors);
+      }     
       )
     
   }
@@ -62,8 +72,12 @@ export class FormComponent implements OnInit {
       
       this.router.navigate(['/clientes'])
       swal.fire('Nuevo cliente' , `${json.mensaje}: ${json.cliente.nombre}  `,'success')
-
-      }
+      },
+      err =>{
+        this.errores = err.error.errors as string[]
+        console.error('Código del error desde back end:'+ err.status);
+        console.error(err.error.errors);
+      } 
     )
   }
 
