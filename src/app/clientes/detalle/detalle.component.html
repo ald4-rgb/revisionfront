@@ -14,17 +14,14 @@
           <div class="row">
             <div class="col-sm">
               <ul *ngIf="cliente" class="list-group text-dark mb-3"  >
-                <!--nombre-->
                 <li class="list-group-item active">{{cliente.nombre}}</li>
-                <!--apellido-->
                 <li class="list-group-item">{{cliente.apellido}}</li>
-                <!--email-->
                 <li class="list-group-item">{{cliente.email}}</li>
-                <!--fecha--> 
                 <li class="list-group-item">{{cliente.createAt | date:"fullDate"}}</li>
+                <li class="list-group-item ">{{cliente.region.nombre}}</li>
               </ul> 
 
-             <div class="input-group mb-3" >
+             <div class="input-group mb-3" *ngIf="authService.hasRole('ROLE_ADMIN')" >
                <div class="custom-file">
                  <input (change)="seleccionarFoto($event)"  type="file" class="custom-file-input" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04">
                  <label class="custom-file-label" for="inputGroupFile04">seleccionar Foto </label>
@@ -44,14 +41,53 @@
             </div>
            
             <div class="col-sm">
-              <!-- si el cliente tiene la foto y es distinto a null encontces mostramos la imagen 
-                 en el alt podemos dar un descripcion o nombre que queramos -->
-             <img *ngIf="cliente?.foto" src="http://localhost:8080/api/uploads/img/{{cliente.foto}}" 
-             
-             alt="{{cliente.foto}}"  class="img-thumbnail rounded">
+             <img *ngIf="cliente?.foto" src="http://localhost:8080/api/uploads/img/{{cliente.foto}}" alt="{{cliente.foto}}"  class="img-thumbnail rounded">
             </div>
-           
            </div>
+           <div class="row" *ngIf="authService.hasRole('ROLE_ADMIN')">
+          <button  type="button" [routerLink]="['/facturas/form',cliente.id]"  
+            class="btn btn-success btn-sm">Crear Factura</button>
+           </div>
+           <div class="row">
+              <div class="alert alert-info my-4" *ngIf="cliente.facturas.length==0">
+                      No hay facturas asigandas para este cliente 
+                    {{cliente.nombre}}  {{cliente.apellido}}  
+              </div>
+              <table class="table bordered table-striped my-4" *ngIf="cliente.facturas.length>=0"> 
+                <thead>
+                   <tr>
+                     <th>folio</th>
+                     <th>descripción</th>
+                     <th>fecha</th>
+                     <th>total</th>
+                     <th>detalle</th>
+                     <th *ngIf="authService.hasRole('ROLE_ADMIN')">Eliminar Factura</th>       
+                   </tr> 
+
+                </thead> 
+                
+                <tbody>
+                   <tr *ngFor="let factura of cliente.facturas">
+                   
+                   <td>{{factura.id}}</td>
+
+                   <td>{{factura.descripcion}}</td>
+
+                   <td>{{factura.createAt}}</td>
+                     
+                   <td>{{factura.total}}</td>
+
+                  <td><button class="btn btn-primary btn-sm" type="button"[routerLink]="['/facturas',factura.id]">ver</button></td>
+                  <td *ngIf="authService.hasRole('ROLE_ADMIN')"><button class="btn btn-danger btn-sm" type="button" (click)="delete(factura)" >eliminar</button></td>
+                   
+                  </tr>    
+                </tbody>
+
+
+             </table> 
+
+
+           </div>  
           </div>
 
       </div>
